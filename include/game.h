@@ -1,7 +1,12 @@
 #ifndef GAME_H
 #define GAME_H
+#include <stdio.h>
+#include <stdlib.h>
 
-#include <SDL2/SDL.h>
+
+#define MAX_LINE_LENGTH 100
+#define CHECK_NULL(op)	do {if((op) == NULL) {perror (#op); exit(EXIT_FAILURE);}\
+			} while (0)
 
 /**
  * @enum CaseType
@@ -11,37 +16,35 @@
 enum CellContent {
 	EMPTY = ' ',
 	WALL = '#',
-	BOX = '*',
+	BOX = 'B',
 	PLAYER = '@',
 	TARGET = 'o',
-	BOX_ON_TARGET = '.',
-	PLAYER_ON_TARGET = '+'
+	BOX_ON_TARGET = '*',
+	PLAYER_ON_TARGET = 'a'
 };
 
 /**
- * 0struct GameGrid
+ * 0struct GameState
  * @brief 
  * */
-struct GameGrid {
-	enum CellContent** game_grid;
-	int columns;
-	int rows;
-};
-
-
 struct GameState {
-	struct GameGrid grid;
+	enum CellContent** game_grid;
+	char* map_path;
+	int rows;
+	int columns;
 	int playerX;
 	int playerY;
 	int total_targets;
 	int targets_Completed;
+	int playing;
+	int verify_option;
 };
 
 
-void initializeGame(struct GameState* game, int rows, int columns, int totalTargets);
-void updateGame(struct GameState* game);
-void renderGame(struct GameState* game, SDL_Renderer* renderer);
-void freeLevel(struct GameState* game)
+void initializeGame(struct GameState* game, char* file_path);
+void restartGame(struct GameState* game);
+int verifyTargets(struct GameState* game);
+void freeLevel(struct GameState* game);
 
 
 #endif
