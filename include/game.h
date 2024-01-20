@@ -16,7 +16,7 @@
 enum CellContent {
 	EMPTY = ' ',
 	WALL = '#',
-	BOX = 'B',
+	BOX = '$',
 	PLAYER = '@',
 	TARGET = 'o',
 	BOX_ON_TARGET = '*',
