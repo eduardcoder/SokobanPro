@@ -1,36 +1,46 @@
 #include "../include/graphics.h"
+#include <SDL2/SDL_system.h>
 #include <ncurses.h>
-
-SDLContext context;
-
 /*
-void initializeSDL(){
-	int const width = 1280;
-	int const height = 720;
-	context = (SDLContext){NULL, NULL, .width = 0, .height = 0};
-	if (SDL_Init(SDL_INIT_VIDEO)) {
-		return;	
+void getWindow() {
+	int width = 1280;
+	int height = 720;
+	// Création de la fenêtre
+	SDL_Window *window = SDL_CreateWindow("Sokoban", SDL_WINDOWPOS_CENTERED,
+                       SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+	if (!window) {
+    return;
+	}
+	SDL_Renderer *renderer =
+      SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+}
+
+
+void initializeSDL() {
+	int isInitialized = SDL_Init(SDL_INIT_VIDEO);
+	if (isInitialized) {
+		fprintf(stderr, "Error %s not found\n", gameState.mapPath);
+		exit(-1);	
 	}
 }
 */
-
-void displayConsole(struct GameState *game){
+void displayConsole(){
 	clear();
 	int row_index, column_index;
-	for(row_index = 0; row_index < game->rows; row_index++){
-		for(column_index = 0; column_index < game->columns; column_index++){
-			printw("%c",game->game_grid[row_index][column_index]);
+	for(row_index = 0; row_index < gameState.rows; row_index++){
+		for(column_index = 0; column_index < gameState.columns; column_index++){
+			printw("%c",gameState.levelGrid[row_index][column_index]);
 		}
 		printw("\n");
 	}
-	if (game->targets_Completed == game->total_targets) {
-		printw("%d/%d VICTORY!\n", game->targets_Completed, game->total_targets);
+	if (gameState.completedTargets == gameState.totalTargets) {
+		printw("%d/%d VICTORY!\n", gameState.completedTargets, gameState.totalTargets);
 		printw("Restart: R\t Exit: Q\n");
-	}else if (game->verify_option) {
-		printw("Targets: %d/%d ...PAUSE...\n", game->targets_Completed, game->total_targets);
+	}else if (gameState.verifyOption) {
+		printw("Targets: %d/%d ...PAUSE...\n", gameState.completedTargets, gameState.totalTargets);
 		printw("Continue: ESC\nRestart: R\t Exit: Q\n");	
 	}else {
-		printw("Targets: %d/%d\nOptions: ESC\n", game->targets_Completed, game->total_targets);
+		printw("Targets: %d/%d\nOptions: ESC\n", gameState.completedTargets, gameState.totalTargets);
 	}
 	refresh();
 }

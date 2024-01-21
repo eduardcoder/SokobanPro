@@ -1,60 +1,56 @@
 #include "../include/player.h"
 
+Player player;
 
-
-Player initializePlayer(struct GameState* game) {
-	Player new_player;
-	new_player.position.x = game->playerX;
-	new_player.position.y = game->playerY;
-	return new_player;
+void initializePlayer() {
+	player.position.x = gameState.initialPlayerPosition.x;
+	player.position.y = gameState.initialPlayerPosition.y;
 }
 
-char getCellContent(struct GameState* game, Location location) {
-	char CellContent = game->game_grid[location.y][location.x];
+char getCellContent(Location location) {
+	char CellContent = gameState.levelGrid[location.y][location.x];
 	return CellContent;
 }
 
-void updateMap(struct GameState *game, Location current_l, Location future_l) {
-	char current_Cell = getCellContent(game, current_l);
-	char future_Cell = getCellContent(game, future_l);
+void updateMap(Location currentPosition, Location nextPosition) {
+	char currentCellContent = getCellContent(currentPosition);
+	char nextCellContent = getCellContent(nextPosition);
 
-	if (future_Cell == TARGET) {
-		if (current_Cell == BOX || current_Cell == BOX_ON_TARGET) {
-			game->game_grid[future_l.y][future_l.x] = BOX_ON_TARGET;
+	//update nextCell
+	if (nextCellContent == TARGET) {
+		if (currentCellContent == BOX || currentCellContent == BOX_ON_TARGET) {
+			gameState.levelGrid[nextPosition.y][nextPosition.x] = BOX_ON_TARGET;
 		}else {
-			game->game_grid[future_l.y][future_l.x] = PLAYER_ON_TARGET;
+			gameState.levelGrid[nextPosition.y][nextPosition.x] = PLAYER_ON_TARGET;
 		}
+	}else if (currentCellContent == BOX || currentCellContent == BOX_ON_TARGET) {
+		gameState.levelGrid[nextPosition.y][nextPosition.x] = BOX;
 	}else {
-		if (current_Cell == BOX || current_Cell == BOX_ON_TARGET) {
-			game->game_grid[future_l.y][future_l.x] = BOX;
-		}else {
-			game->game_grid[future_l.y][future_l.x] = PLAYER;
-		}
+		gameState.levelGrid[nextPosition.y][nextPosition.x] = PLAYER;
 	}
-	if (current_Cell == BOX_ON_TARGET || current_Cell == PLAYER_ON_TARGET) {
-		game->game_grid[current_l.y][current_l.x] = TARGET;
+
+	//update currentCell
+	if (currentCellContent == BOX_ON_TARGET || currentCellContent == PLAYER_ON_TARGET) {
+		gameState.levelGrid[currentPosition.y][currentPosition.x] = TARGET;
 	}else {
-		game->game_grid[current_l.y][current_l.x] = EMPTY;
+		gameState.levelGrid[currentPosition.y][currentPosition.x] = EMPTY;
 	}
 }
 
-int moveBox(struct GameState *game, Location current, Location next) {
-	char next_cell  = getCellContent(game, next);
-	char current_cell  = getCellContent(game, current);
-
-	switch (next_cell) {
+int moveBox(Location current, Location next) {
+	switch (getCellContent(next)) {
 		case EMPTY: {
-			if (current_cell == BOX_ON_TARGET) {
-				game->targets_Completed -= 1;
+			if (getCellContent(current) == BOX_ON_TARGET) {
+				gameState.completedTargets -= 1;
 			}
-			updateMap(game, current, next);
+			updateMap(current, next);
 			return 1;
 		}
 		case TARGET: {
-			if (current_cell != BOX_ON_TARGET) {
-				game->targets_Completed += 1;
+			if (getCellContent(current) != BOX_ON_TARGET) {
+				gameState.completedTargets += 1;
 			}
-			updateMap(game, current, next);
+			updateMap(current, next);
 			return 1;
 		}
 		default:
@@ -62,20 +58,20 @@ int moveBox(struct GameState *game, Location current, Location next) {
 	}
 }
 
-void handleNewPosition(Player* player, struct GameState *game, Location new_cell, Location after_new_cell) {
-	char new_position_cell = game->game_grid[new_cell.y][new_cell.x];
-	switch (new_position_cell) {
+void handleNewPosition(Location newCell, Location cellAfterNew) {
+	char newPositionCell = getCellContent(newCell);
+	switch (newPositionCell) {
 		case EMPTY:
 		case TARGET: {
-			updateMap(game, player->position, new_cell);
-			player->position = new_cell;
+			updateMap(player.position, newCell);
+			player.position = newCell;
 			break;
 		}
 		case BOX:
 		case BOX_ON_TARGET: {
-			if(moveBox(game, new_cell, after_new_cell)) {
-				updateMap(game, player->position, new_cell);
-				player->position = new_cell;
+			if(moveBox(newCell, cellAfterNew)) {
+				updateMap(player.position, newCell);
+				player.position = newCell;
 			}
 			break;
 		}
@@ -84,34 +80,32 @@ void handleNewPosition(Player* player, struct GameState *game, Location new_cell
 	}
 }
 
-void movePlayer(struct GameState *game, Player* player, enum Direction direction) {
-	Location next_cell;
-	next_cell.y = player->position.y;
-	next_cell.x = player->position.x;
-	Location after_next_cell = next_cell;
+void movePlayer(enum Direction direction) {
+	Location newPosition = player.position;
+	Location positionAfterNew = player.position;
 
 	switch (direction) {
 		case UP:
-			next_cell.y -= 1;
-			after_next_cell.y -=2;
+			newPosition.y -= 1;
+			positionAfterNew.y -=2;
 			break;
 		case DOWN:
-			next_cell.y += 1;
-			after_next_cell.y += 2;
+			newPosition.y += 1;
+			positionAfterNew.y += 2;
 			break;
 		case LEFT:
-			next_cell.x -= 1;
-			after_next_cell.x -= 2;
+			newPosition.x -= 1;
+			positionAfterNew.x -= 2;
 			break;
 		case RIGHT:
-			next_cell.x += 1;
-			after_next_cell.x += 2;
+			newPosition.x += 1;
+			positionAfterNew.x += 2;
 			break;
 		default:
 			break;
 	}
 
-	handleNewPosition(player, game, next_cell, after_next_cell);
+	handleNewPosition(newPosition, positionAfterNew);
 }
 
 

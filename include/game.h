@@ -23,28 +23,34 @@ enum CellContent {
 	PLAYER_ON_TARGET = 'a'
 };
 
+typedef struct {
+	int x;
+	int y;
+} Location;
+
 /**
  * 0struct GameState
  * @brief 
  * */
 struct GameState {
-	enum CellContent** game_grid;
-	char* map_path;
+	enum CellContent** levelGrid;
+	char* mapPath;
 	int rows;
 	int columns;
-	int playerX;
-	int playerY;
-	int total_targets;
-	int targets_Completed;
+	Location initialPlayerPosition;
+	int totalTargets;
+	int completedTargets;
 	int playing;
-	int verify_option;
+	int verifyOption;
 };
 
 
-void initializeGame(struct GameState* game, char* file_path);
-void restartGame(struct GameState* game);
-int verifyTargets(struct GameState* game);
-void freeLevel(struct GameState* game);
+extern struct GameState gameState;
+
+void initializeGame(char* filePath);
+void restartGame();
+int verifyTargets();
+void freeLevel();
 
 
 #endif

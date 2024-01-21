@@ -11,7 +11,7 @@ void usage(char *argv0){
 }
 
 int main(int argc, char *argv[]) {
-	const char *mode_by_default = "--graphics";
+	const char *modeByDefault = "--graphics";
 	const char *mode;
 
 	if (argc > 2) {
@@ -26,28 +26,26 @@ int main(int argc, char *argv[]) {
 			usage(argv[0]);
 		}
 	} else {
-		mode = mode_by_default;
+		mode = modeByDefault;
 	}
 
 	printf("Mode: %s\n", mode);
-	char level_path[] = "../maps/level1.txt";
+	char levelPath[] = "../maps/level1.txt";
 
-	struct GameState game_state;
-	initializeGame(&game_state, level_path);
-	Player player = initializePlayer(&game_state);
-	game_state.playing = 1;
+	initializeGame(levelPath);
+	initializePlayer();
 
 	//initialize window ncurses
 	initscr();
 
-	while(game_state.playing){
-		displayConsole(&game_state);
-		handleEvents(&game_state, &player);
+	while(gameState.playing){
+		displayConsole();
+		handleEvents();
 	}
-
+	clear();
 	endwin();
 
-	freeLevel(&game_state);
+	freeLevel();
 	
 
 	return EXIT_SUCCESS;
