@@ -1,8 +1,23 @@
 #include "../include/game.h"
 
-struct GameState gameState;
+enum GameMode getMode(int argc, char* argv[]) {
+    enum GameMode mode;
+	
+    if (argc > 2) {
+        fprintf(stderr, "usage: ./sokoban --terminal/graphics <optional>\n");
+	    exit(EXIT_FAILURE);
+    }else if ((argc > 1) && (strcmp(argv[1], "--console") == 0)) {
+	    mode = CONSOLE_MODE;
+    }else if ((argc > 1) && (strcmp(argv[1], "--graphics") != 0)) {
+        fprintf(stderr, "usage: ./sokoban --terminal/graphics <optional>\n");
+	    exit(EXIT_FAILURE);
+    }else {
+	    mode = GRAPHICS_MODE;
+    }
+    return mode;
+}
 
-void initializeGame(char* file_path){
+void initializeGame(struct GameState* gameState, char* file_path){
 	FILE* file = fopen(file_path, "r");
 	if (!file) {
 		fprintf(stderr, "Error %s not found\n", file_path);
@@ -11,15 +26,15 @@ void initializeGame(char* file_path){
 	char line[MAX_LINE_LENGTH] = {0};
 	
 	fgets(line, MAX_LINE_LENGTH, file);
-	sscanf(line, "%d %d %d", &gameState.columns, &gameState.rows, &gameState.totalTargets);
-	gameState.completedTargets = 0;
-	gameState.mapPath = file_path;
-	gameState.verifyOption = 0;
-	gameState.playing = 1;
+	sscanf(line, "%d %d %d", &gameState->columns, &gameState->rows, &gameState->totalTargets);
+	gameState->completedTargets = 0;
+	gameState->mapPath = file_path;
+	gameState->options = 0;
+	gameState->playing = 1;
 
-	CHECK_NULL(gameState.levelGrid = calloc(gameState.rows, sizeof(enum CellContent*)));
-	for (int i = 0; i < gameState.rows; i++) {
-		CHECK_NULL(gameState.levelGrid[i] = calloc(gameState.columns, sizeof(enum CellContent)));	
+	CHECK_NULL(gameState->levelGrid = calloc(gameState->rows, sizeof(enum CellContent*)));
+	for (int i = 0; i < gameState->rows; i++) {
+		CHECK_NULL(gameState->levelGrid[i] = calloc(gameState->columns, sizeof(enum CellContent)));	
 	}
 
 	int currentRow = 0;
@@ -27,13 +42,13 @@ void initializeGame(char* file_path){
 		char* buffer = line;
 		int currentColumn = 0;
 		while (*buffer && (*buffer != '\n')) {
-			gameState.levelGrid[currentRow][currentColumn] = *buffer;
+			gameState->levelGrid[currentRow][currentColumn] = *buffer;
 			if (*buffer == PLAYER || *buffer == PLAYER_ON_TARGET) {
-				gameState.initialPlayerPosition.x = currentColumn;
-				gameState.initialPlayerPosition.y = currentRow;
+				gameState->playerPosition.x = currentColumn;
+				gameState->playerPosition.y = currentRow;
 			}
 			if(*buffer == BOX_ON_TARGET){
-				gameState.completedTargets++;
+				gameState->completedTargets++;
 			}
 			currentColumn++;
 			buffer++;
@@ -43,30 +58,30 @@ void initializeGame(char* file_path){
 	fclose(file);	
 }
 
-void restartGame() {
-	FILE* file = fopen(gameState.mapPath, "r");
+void restartGame(struct GameState* gameState) {
+	FILE* file = fopen(gameState->mapPath, "r");
 	if (!file) {
-		fprintf(stderr, "Error %s not found\n", gameState.mapPath);
+		fprintf(stderr, "Error %s not found\n", gameState->mapPath);
 		exit(-1);	
 	}
 	char line[MAX_LINE_LENGTH] = {0};
 	
 	fgets(line, MAX_LINE_LENGTH, file);
-	sscanf(line, "%d %d %d", &gameState.columns, &gameState.rows, &gameState.totalTargets);
-	gameState.completedTargets = 0;
+	sscanf(line, "%d %d %d", &gameState->columns, &gameState->rows, &gameState->totalTargets);
+	gameState->completedTargets = 0;
 
 	int currentRow = 0;
 	while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
 		char* buffer = line;
 		int currentColumn = 0;
 		while (*buffer && (*buffer != '\n')) {
-			gameState.levelGrid[currentRow][currentColumn] = *buffer;
+			gameState->levelGrid[currentRow][currentColumn] = *buffer;
 			if (*buffer == PLAYER || *buffer == PLAYER_ON_TARGET) {
-				gameState.initialPlayerPosition.x = currentColumn;
-				gameState.initialPlayerPosition.y = currentRow;
+				gameState->playerPosition.x = currentColumn;
+				gameState->playerPosition.y = currentRow;
 			}
 			if(*buffer == BOX_ON_TARGET){
-				gameState.completedTargets++;
+				gameState->completedTargets++;
 			}
 			currentColumn++;
 			buffer++;
@@ -76,19 +91,19 @@ void restartGame() {
 	fclose(file);	
 }
 
-int verifyTargets() {
-	if (gameState.totalTargets == gameState.completedTargets){
+int verifyTargets(struct GameState* gameState) {
+	if (gameState->totalTargets == gameState->completedTargets){
 		return 1;
 	}else {
 		return 0;
 	}
 }
 
-void freeLevel(){
-	for(int index = 0; index < gameState.rows; index++){
-		free(gameState.levelGrid[index]);
+void freeLevel(struct GameState* gameState){
+	for(int index = 0; index < gameState->rows; index++){
+		free(gameState->levelGrid[index]);
 	}
-	free(gameState.levelGrid);
+	free(gameState->levelGrid);
 }
 
 

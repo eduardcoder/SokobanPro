@@ -2,20 +2,21 @@
 #define PLAYER_H
 
 #include "game.h"  
-#include "input.h"
 
-typedef struct Player {
-	Location position;
-}Player;
+enum Direction {
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT
+};
 
-extern Player player;
 
 void initializePlayer();
-char getCellContent(Location location);
-void updateMap(Location currentPosition, Location nextPosition);
-int moveBox(Location current, Location next);
-void handleNewPosition(Location nextCell, Location cellAfterNew);
-void movePlayer(enum Direction direction);
+char getCellContent(enum CellContent **levelGrid, Location location);
+void updateMap(enum CellContent **levelGrid, Location currentPosition, Location nextPosition);
+int moveBox(struct GameState *gameState, Location current, Location next);
+void handleNewPosition(struct GameState *game, Location nextCell, Location cellAfterNew);
+void movePlayer(struct GameState *game, enum Direction direction);
 
 #endif
 

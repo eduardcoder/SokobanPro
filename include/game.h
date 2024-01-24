@@ -2,11 +2,18 @@
 #define GAME_H
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 #define MAX_LINE_LENGTH 100
+
 #define CHECK_NULL(op)	do {if((op) == NULL) {perror (#op); exit(EXIT_FAILURE);}\
 			} while (0)
+
+enum GameMode {
+    CONSOLE_MODE,
+    GRAPHICS_MODE
+};
 
 /**
  * @enum CaseType
@@ -33,24 +40,22 @@ typedef struct {
  * @brief 
  * */
 struct GameState {
-	enum CellContent** levelGrid;
+	enum CellContent **levelGrid;
 	char* mapPath;
 	int rows;
 	int columns;
-	Location initialPlayerPosition;
+	Location playerPosition;
 	int totalTargets;
 	int completedTargets;
 	int playing;
-	int verifyOption;
+	int options;
 };
 
-
-extern struct GameState gameState;
-
-void initializeGame(char* filePath);
-void restartGame();
-int verifyTargets();
-void freeLevel();
+enum GameMode getMode(int argc, char *argv[]);
+void initializeGame(struct GameState *gameState, char *filePath);
+void restartGame(struct GameState *gameState);
+int verifyTargets(struct GameState *gameState);
+void freeLevel(struct GameState *gameState);
 
 
 #endif
