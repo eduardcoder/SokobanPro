@@ -15,7 +15,7 @@
 #define TEXTURE_WIDTH 128 
 #define TEXTURE_HEIGHT 128
 #define FPS 60
-#define SPEED 70.0 
+#define SPEED 128.0 
 
 typedef void (*DisplayFunction)(struct GameState *game);
 
@@ -44,6 +44,7 @@ typedef struct GraphicsContext {
 extern GraphicsContext graphicsContext;
 
 void SDL_ErrorExit(const char *section, const char *error);
+void initializeSprites();
 void initializeSDL();
 void finalizeSDL();
 SDL_Texture* loadTexture(SDL_Renderer *renderer, const char *filePath);

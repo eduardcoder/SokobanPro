@@ -1,45 +1,48 @@
 #include "../include/eventHandler.h"
+#include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_scancode.h>
+#include <SDL2/SDL_timer.h>
 
+static const Uint8 *keyState;
 static Uint32 startTime = 0;
 static Uint32 currentTime; 
 static Uint32 moveInterval;
 
 void handleEventsSDL2(struct GameState *gameState) {
-    currentTime = SDL_GetTicks();
-    moveInterval = 500;
+    moveInterval = 400;
     
     SDL_Event event;
     while (SDL_PollEvent(&event)) {  
         if (event.type == SDL_QUIT) {
 			gameState->playing = 0;
-        }else if (event.type == SDL_KEYDOWN) {
-            if (!graphicsContext.player.isMoving) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_UP:
-                        graphicsContext.player.isMoving = 1;
-                        graphicsContext.player.direction = UP;
-                        graphicsContext.player.frameClip = 0;
-                        break;
-                    case SDLK_DOWN:
-                        graphicsContext.player.isMoving = 1;
-                        graphicsContext.player.direction = DOWN;
-                        graphicsContext.player.frameClip = 0;
-                        break;
-                    case SDLK_LEFT:
-                        graphicsContext.player.isMoving = 1;
-                        graphicsContext.player.direction = LEFT;
-                        graphicsContext.player.frameClip = 0;
-                        break;
-                    case SDLK_RIGHT:
-                        graphicsContext.player.isMoving = 1;
-                        graphicsContext.player.direction = RIGHT;
-                        graphicsContext.player.frameClip = 0;
-                        break;
-                }
-            }
         }
     }
-    if (graphicsContext.player.isMoving == 1 && ((currentTime - startTime) >= moveInterval)) {
+    keyState = SDL_GetKeyboardState(NULL);
+    if (!graphicsContext.player.isMoving) {
+        if (keyState[SDL_SCANCODE_UP]) {
+            graphicsContext.player.isMoving = 1;
+            startTime = SDL_GetTicks();
+            graphicsContext.player.direction = UP;
+            graphicsContext.player.frameClip = 0;
+        }else if (keyState[SDL_SCANCODE_DOWN]) {
+            graphicsContext.player.isMoving = 1;
+            startTime = SDL_GetTicks();
+            graphicsContext.player.direction = DOWN;
+            graphicsContext.player.frameClip = 0;
+        }else if (keyState[SDL_SCANCODE_LEFT]) {
+            graphicsContext.player.isMoving = 1;
+            startTime = SDL_GetTicks();
+            graphicsContext.player.direction = LEFT;
+            graphicsContext.player.frameClip = 0;
+        }else if (keyState[SDL_SCANCODE_RIGHT]) {
+            graphicsContext.player.isMoving = 1;
+            startTime = SDL_GetTicks();
+            graphicsContext.player.direction = RIGHT;
+            graphicsContext.player.frameClip = 0;
+        }
+    }
+
+    if (graphicsContext.player.isMoving && ((SDL_GetTicks() - startTime) >= moveInterval)) {
         movePlayer(gameState, graphicsContext.player.direction);
         startTime = currentTime;
         graphicsContext.player.isMoving = 0;

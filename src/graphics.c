@@ -5,7 +5,9 @@ GraphicsContext graphicsContext;
 static float frameTime = 0;
 static Uint32 startTime = 0;
 static Uint32 currentTime = 0;
-static int times = 0;
+static int frame = 1;
+double yAnimation;
+double xAnimation;
 
 
 void SDL_ErrorExit(const char *section, const char *error){
@@ -64,12 +66,12 @@ void initializeSDL() {
         SDL_ErrorExit("SDL_Renderer", SDL_GetError()); 
     }
     
-    SDL_Texture *gameTexture = loadTexture(renderer, "../assets/sokoban_tilesheet@2.png");
-    initializeSprites();
+    SDL_Texture *gameTexture = loadTexture(renderer, "assets/sokoban_tilesheet@2.png");
 
     graphicsContext = (GraphicsContext){
         .window = window, .renderer = renderer, .width = DEFAULT_SCREEN_WIDTH, .height = DEFAULT_SCREEN_HEIGHT, .gameTexture = gameTexture
         }; 
+    initializeSprites();
 }
 
 
@@ -154,49 +156,51 @@ void renderEntities(struct GameState *game) {
 }
 
 void playerAnimation(Location playerPosition, float movement){
-    double yPosition = (double)playerPosition.y + 1;
-    double xPosition = (double)playerPosition.x;
+    int yPosition = playerPosition.y + 1;
+    int xPosition = playerPosition.x;
     int clipIndex = graphicsContext.player.frameClip;
     Location sourcePosition;
+    printf("(%d, %d) ", graphicsContext.player.spriteUpClips[0].x,graphicsContext.player.spriteUpClips[0].y);
+    printf("(%d, %d) ", graphicsContext.player.spriteUpClips[1].x,graphicsContext.player.spriteUpClips[0].y);
+    printf("(%d, %d) ", graphicsContext.player.spriteUpClips[2].x,graphicsContext.player.spriteUpClips[0].y);
+    printf("(%d, %d) ", graphicsContext.player.spriteUpClips[3].x,graphicsContext.player.spriteUpClips[0].y);
 
     if (graphicsContext.player.isMoving) {
         switch (graphicsContext.player.direction) {
             case UP:
-                yPosition = (yPosition * TEXTURE_HEIGHT) + movement;
-                xPosition = xPosition * TEXTURE_WIDTH;
+                yAnimation -= movement;
                 sourcePosition = graphicsContext.player.spriteUpClips[clipIndex];
                 break;
             case DOWN:
-                yPosition = (yPosition * TEXTURE_HEIGHT) - movement;
-                xPosition = xPosition * TEXTURE_WIDTH;
+                yAnimation += movement;
                 sourcePosition = graphicsContext.player.spriteDownClips[clipIndex];
                 break;
             case RIGHT:
-                xPosition = (xPosition * TEXTURE_WIDTH) + movement;
-                yPosition = yPosition * TEXTURE_HEIGHT;
+                xAnimation += movement;
                 sourcePosition = graphicsContext.player.spriteRightClips[clipIndex];
                 break;
             case LEFT:
-                xPosition = (xPosition * TEXTURE_WIDTH) - movement;
-                yPosition = yPosition * TEXTURE_HEIGHT;
+                xAnimation -= movement;
                 sourcePosition = graphicsContext.player.spriteLeftClips[clipIndex];
                 break;
             default:
                 break;
         }    
-        printf("(%f,%f) \n",yPosition, xPosition );
+        //printf("c%d x%d y%d",clipIndex,sourcePosition.x,sourcePosition.y);
         graphicsContext.player.sourceSprite = (SDL_Rect){sourcePosition.x * TEXTURE_WIDTH, sourcePosition.y * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
-        graphicsContext.player.destinationRender = (SDL_Rect){xPosition, yPosition, TEXTURE_WIDTH, TEXTURE_HEIGHT};
+        graphicsContext.player.destinationRender = (SDL_Rect){xAnimation, yAnimation, TEXTURE_WIDTH, TEXTURE_HEIGHT};
     }else {
         /*
         //printf("y:%f ",yPosition);
-        yPosition = (yPosition) - (double)MOVE_SPEED;
+        yPosition = (yPosition) - (double)MOVE_SPEED
         //printf("y:%f ",yPosition);
         graphicsContext.player.destinationRender = (SDL_Rect){xPosition * TEXTURE_WIDTH, yPosition * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
         graphicsContext.player.sourceSprite = (SDL_Rect){sourcePosition.x * TEXTURE_WIDTH, sourcePosition.y * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
         /*/
+        yAnimation = yPosition * TEXTURE_HEIGHT;
+        xAnimation = xPosition * TEXTURE_WIDTH;
         graphicsContext.player.sourceSprite = (SDL_Rect){0 * TEXTURE_WIDTH, 5 * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
-        graphicsContext.player.destinationRender = (SDL_Rect){xPosition * TEXTURE_WIDTH, yPosition * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
+        graphicsContext.player.destinationRender = (SDL_Rect){xAnimation, yAnimation, TEXTURE_WIDTH, TEXTURE_HEIGHT};
         
     }
 }
@@ -204,10 +208,13 @@ void playerAnimation(Location playerPosition, float movement){
 void displaySDL(struct GameState *game){
     double scaleX = (double)graphicsContext.width/(game->columns * TEXTURE_WIDTH);
     double scaleY = (double)graphicsContext.height/((game->rows +1) * TEXTURE_HEIGHT);
-    float movement;
+    float movement = 0;
     float deltaTime;
 
     currentTime = SDL_GetTicks();
+    if (graphicsContext.player.isMoving) {
+        frame = graphicsContext.player.isMoving;
+    }
 
     frameTime = currentTime - startTime;
     if (frameTime < 1000.0 / FPS) {
@@ -218,9 +225,7 @@ void displaySDL(struct GameState *game){
         deltaTime = frameTime / 1000.0;
         movement = SPEED * deltaTime;
         
-        times += 15; 
-        if(times == FPS){
-            times = 0;
+        if((frame % 15) == 0) {
             graphicsContext.player.frameClip = (graphicsContext.player.frameClip + 1) % 4;
         }
         playerAnimation(game->playerPosition, movement);
@@ -232,6 +237,17 @@ void displaySDL(struct GameState *game){
         SDL_RenderSetScale(graphicsContext.renderer, 1.0, 1.0);
         SDL_RenderPresent(graphicsContext.renderer); 
         startTime = SDL_GetTicks();
+    }
+    if (graphicsContext.player.isMoving) {
+        graphicsContext.player.isMoving++;
+        if (graphicsContext.player.isMoving > FPS) {
+            graphicsContext.player.isMoving = 1;        
+        }
+    }
+    if (frame < FPS) {
+        frame++;    
+    }else {
+        frame = 1;
     }
 
 }
