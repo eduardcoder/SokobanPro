@@ -5,7 +5,6 @@ GraphicsContext graphicsContext;
 static float frameTime = 0;
 static Uint32 startTime = 0;
 static Uint32 currentTime = 0;
-static int frame = 1;
 double yAnimation;
 double xAnimation;
 
@@ -119,6 +118,44 @@ void renderMap(struct GameState *game) {
     }
 }
 
+int verifierWall(struct GameState *game){
+    int nextY = game->playerPosition.y;
+    int nextX = game->playerPosition.x;
+    int afterNextY = game->playerPosition.y;
+    int afterNextX = game->playerPosition.x;
+    switch (graphicsContext.player.direction) {
+        case UP:
+            nextY -= 1;
+            afterNextY -= 2;
+            break;
+        case DOWN:
+            nextY += 1;
+            afterNextY += 2;
+            break;
+        case LEFT:
+            nextX -= 1;
+            afterNextX -= 2;
+            break;
+        case RIGHT:
+            nextX += 1;
+            afterNextX += 2;
+            break;
+    }
+
+    int currentCell = game->levelGrid[nextY][nextX];
+    int nextCell = game->levelGrid[afterNextY][afterNextX];
+
+    switch (currentCell) {
+        case WALL:
+            return 1;
+        case BOX_ON_TARGET:
+        case BOX:
+            return (nextCell == BOX || nextCell == BOX_ON_TARGET || nextCell == WALL);
+        default:
+            return 0;
+    }  
+}
+
 void renderEntities(struct GameState *game) {
     SDL_Rect sourceRect;  
     SDL_Rect destinationRect;
@@ -155,13 +192,13 @@ void renderEntities(struct GameState *game) {
     }
 }
 
-void playerAnimation(Location playerPosition, float movement){
-    int yPosition = playerPosition.y + 1;
-    int xPosition = playerPosition.x;
+void playerAnimation(struct GameState *game, float movement){
+    int yPosition = game->playerPosition.y + 1;
+    int xPosition = game->playerPosition.x;
     int clipIndex = graphicsContext.player.frameClip;
     Location sourcePosition;
 
-    if (graphicsContext.player.isMoving) {
+    if (graphicsContext.player.isMoving && !verifierWall(game)) {
         switch (graphicsContext.player.direction) {
             case UP:
                 yAnimation -= movement;
@@ -182,17 +219,9 @@ void playerAnimation(Location playerPosition, float movement){
             default:
                 break;
         }    
-        //printf("c%d x%d y%d",clipIndex,sourcePosition.x,sourcePosition.y);
         graphicsContext.player.sourceSprite = (SDL_Rect){sourcePosition.x * TEXTURE_WIDTH, sourcePosition.y * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
         graphicsContext.player.destinationRender = (SDL_Rect){xAnimation, yAnimation, TEXTURE_WIDTH, TEXTURE_HEIGHT};
     }else {
-        /*
-        //printf("y:%f ",yPosition);
-        yPosition = (yPosition) - (double)MOVE_SPEED
-        //printf("y:%f ",yPosition);
-        graphicsContext.player.destinationRender = (SDL_Rect){xPosition * TEXTURE_WIDTH, yPosition * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
-        graphicsContext.player.sourceSprite = (SDL_Rect){sourcePosition.x * TEXTURE_WIDTH, sourcePosition.y * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
-        /*/
         yAnimation = yPosition * TEXTURE_HEIGHT;
         xAnimation = xPosition * TEXTURE_WIDTH;
         graphicsContext.player.sourceSprite = (SDL_Rect){0 * TEXTURE_WIDTH, 5 * TEXTURE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT};
@@ -208,9 +237,8 @@ void displaySDL(struct GameState *game){
     float deltaTime;
 
     currentTime = SDL_GetTicks();
-    if (graphicsContext.player.isMoving) {
-        frame = graphicsContext.player.isMoving;
-    }
+
+    graphicsContext.player.frameClip = (currentTime/90 % 4);
 
     frameTime = currentTime - startTime;
     if (frameTime < 1000.0 / FPS) {
@@ -220,11 +248,8 @@ void displaySDL(struct GameState *game){
     if (frameTime >= 1000.0 / FPS) {
         deltaTime = frameTime / 1000.0;
         movement = SPEED * deltaTime;
-        
-        if((frame % 7) == 0) {
-            graphicsContext.player.frameClip = (graphicsContext.player.frameClip + 1) % 4;
-        }
-        playerAnimation(game->playerPosition, movement);
+
+        playerAnimation(game, movement);
         SDL_RenderClear(graphicsContext.renderer);
         SDL_SetRenderDrawColor(graphicsContext.renderer, 0, 0, 0, 255);
         SDL_RenderSetScale(graphicsContext.renderer, scaleX, scaleY);
@@ -233,17 +258,6 @@ void displaySDL(struct GameState *game){
         SDL_RenderSetScale(graphicsContext.renderer, 1.0, 1.0);
         SDL_RenderPresent(graphicsContext.renderer); 
         startTime = SDL_GetTicks();
-    }
-    if (graphicsContext.player.isMoving) {
-        graphicsContext.player.isMoving++;
-        if (graphicsContext.player.isMoving > FPS/2) {
-            graphicsContext.player.isMoving = 1;        
-        }
-    }
-    if (frame < FPS / 2) {
-        frame++;    
-    }else {
-        frame = 1;
     }
 
 }

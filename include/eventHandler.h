@@ -8,6 +8,8 @@
 #include <ncurses.h>
 #include "graphics.h"
 
+#define MOVE_INTERVAL 185
+
 typedef void (*EventHandlingFunction)(struct GameState *game);
 
 void handleEventsConsole(struct GameState *gameState);

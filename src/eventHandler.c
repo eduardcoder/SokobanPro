@@ -6,10 +6,8 @@
 static const Uint8 *keyState;
 static Uint32 startTime = 0;
 static Uint32 currentTime; 
-static Uint32 moveInterval;
 
 void handleEventsSDL2(struct GameState *gameState) {
-    moveInterval = 500;
     
     SDL_Event event;
     while (SDL_PollEvent(&event)) {  
@@ -42,7 +40,7 @@ void handleEventsSDL2(struct GameState *gameState) {
         }
     }
 
-    if (graphicsContext.player.isMoving && ((SDL_GetTicks() - startTime) >= moveInterval)) {
+    if (graphicsContext.player.isMoving && ((SDL_GetTicks() - startTime) >= MOVE_INTERVAL)) {
         movePlayer(gameState, graphicsContext.player.direction);
         startTime = currentTime;
         graphicsContext.player.isMoving = 0;

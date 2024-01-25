@@ -15,7 +15,7 @@
 #define TEXTURE_WIDTH 128 
 #define TEXTURE_HEIGHT 128
 #define FPS 60
-#define SPEED 256.0 
+#define SPEED 691.891 
 
 typedef void (*DisplayFunction)(struct GameState *game);
 
