@@ -160,10 +160,6 @@ void playerAnimation(Location playerPosition, float movement){
     int xPosition = playerPosition.x;
     int clipIndex = graphicsContext.player.frameClip;
     Location sourcePosition;
-    printf("(%d, %d) ", graphicsContext.player.spriteUpClips[0].x,graphicsContext.player.spriteUpClips[0].y);
-    printf("(%d, %d) ", graphicsContext.player.spriteUpClips[1].x,graphicsContext.player.spriteUpClips[0].y);
-    printf("(%d, %d) ", graphicsContext.player.spriteUpClips[2].x,graphicsContext.player.spriteUpClips[0].y);
-    printf("(%d, %d) ", graphicsContext.player.spriteUpClips[3].x,graphicsContext.player.spriteUpClips[0].y);
 
     if (graphicsContext.player.isMoving) {
         switch (graphicsContext.player.direction) {
@@ -225,7 +221,7 @@ void displaySDL(struct GameState *game){
         deltaTime = frameTime / 1000.0;
         movement = SPEED * deltaTime;
         
-        if((frame % 15) == 0) {
+        if((frame % 7) == 0) {
             graphicsContext.player.frameClip = (graphicsContext.player.frameClip + 1) % 4;
         }
         playerAnimation(game->playerPosition, movement);
@@ -240,11 +236,11 @@ void displaySDL(struct GameState *game){
     }
     if (graphicsContext.player.isMoving) {
         graphicsContext.player.isMoving++;
-        if (graphicsContext.player.isMoving > FPS) {
+        if (graphicsContext.player.isMoving > FPS/2) {
             graphicsContext.player.isMoving = 1;        
         }
     }
-    if (frame < FPS) {
+    if (frame < FPS / 2) {
         frame++;    
     }else {
         frame = 1;

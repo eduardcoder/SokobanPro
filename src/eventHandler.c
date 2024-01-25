@@ -9,7 +9,7 @@ static Uint32 currentTime;
 static Uint32 moveInterval;
 
 void handleEventsSDL2(struct GameState *gameState) {
-    moveInterval = 400;
+    moveInterval = 500;
     
     SDL_Event event;
     while (SDL_PollEvent(&event)) {  
