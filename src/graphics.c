@@ -143,13 +143,14 @@ int verifierWall(struct GameState *game){
     }
 
     int currentCell = game->levelGrid[nextY][nextX];
-    int nextCell = game->levelGrid[afterNextY][afterNextX];
+    int nextCell;
 
     switch (currentCell) {
         case WALL:
             return 1;
         case BOX_ON_TARGET:
         case BOX:
+            nextCell = game->levelGrid[afterNextY][afterNextX];
             return (nextCell == BOX || nextCell == BOX_ON_TARGET || nextCell == WALL);
         default:
             return 0;

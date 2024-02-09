@@ -56,29 +56,30 @@ int moveBox(struct GameState* gameState, Location current, Location next) {
 	}
 }
 
-void handleNewPosition(struct GameState* game, Location newCell, Location cellAfterNew) {
+int handleNewPosition(struct GameState* game, Location newCell, Location cellAfterNew) {
 	char newPositionCell = getCellContent(game->levelGrid, newCell);
 	switch (newPositionCell) {
 		case EMPTY:
 		case TARGET: {
 			updateMap(game->levelGrid, game->playerPosition, newCell);
 			game->playerPosition = newCell;
-			break;
+            return 1;
 		}
 		case BOX:
 		case BOX_ON_TARGET: {
 			if(moveBox(game, newCell, cellAfterNew)) {
 				updateMap(game->levelGrid, game->playerPosition, newCell);
 				game->playerPosition = newCell;
+                return 1;
 			}
-			break;
+            return 0;
 		}
 		default:
-			break;
+            return 0;
 	}
 }
 
-void movePlayer(struct GameState* game, enum Direction direction) {
+int movePlayer(struct GameState* game, enum Direction direction) {
 	Location newPosition = game->playerPosition;
 	Location positionAfterNew = game->playerPosition;
 
@@ -103,7 +104,11 @@ void movePlayer(struct GameState* game, enum Direction direction) {
 			break;
 	}
 
-	handleNewPosition(game, newPosition, positionAfterNew);
+    if (handleNewPosition(game, newPosition, positionAfterNew)) {
+        return 1;
+    }else {
+        return 0;
+    }
 }
 
 

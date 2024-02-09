@@ -1,7 +1,9 @@
 #include "../include/eventHandler.h"
+#include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_timer.h>
+#include <stdio.h>
 
 static const Uint8 *keyState;
 static Uint32 startTime = 0;
@@ -43,7 +45,29 @@ void handleEventsSDL2(struct GameState *gameState) {
     if (graphicsContext.player.isMoving && ((SDL_GetTicks() - startTime) >= MOVE_INTERVAL)) {
         movePlayer(gameState, graphicsContext.player.direction);
         startTime = currentTime;
-        graphicsContext.player.isMoving = 0;
+        if (keyState[SDL_SCANCODE_UP]) {
+            graphicsContext.player.isMoving = 1;
+            startTime = SDL_GetTicks();
+            graphicsContext.player.direction = UP;
+            graphicsContext.player.frameClip = 0;
+        }else if (keyState[SDL_SCANCODE_DOWN]) {
+            graphicsContext.player.isMoving = 1;
+            startTime = SDL_GetTicks();
+            graphicsContext.player.direction = DOWN;
+            graphicsContext.player.frameClip = 0;
+        }else if (keyState[SDL_SCANCODE_LEFT]) {
+            graphicsContext.player.isMoving = 1;
+            startTime = SDL_GetTicks();
+            graphicsContext.player.direction = LEFT;
+            graphicsContext.player.frameClip = 0;
+        }else if (keyState[SDL_SCANCODE_RIGHT]) {
+            graphicsContext.player.isMoving = 1;
+            startTime = SDL_GetTicks();
+            graphicsContext.player.direction = RIGHT;
+            graphicsContext.player.frameClip = 0;
+        }else {
+            graphicsContext.player.isMoving = 0;
+        }
     }
     if (gameState->completedTargets == gameState->totalTargets) {
         gameState->playing = 0;
