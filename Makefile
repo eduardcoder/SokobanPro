@@ -4,7 +4,7 @@
 CC = gcc
 
 # Compilation options
-CFLAGS = -Wall -Wextra -std=c11
+CFLAGS = -Wall -Wextra -std=c11 -O3
 
 # Source and build directories
 SRC_DIR = src
@@ -20,7 +20,7 @@ OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 TARGET = Sokoban
 
 # Libraries
-LIBS = -lncurses -lSDL2 -lSDL2_image
+LIBS = -lncurses -lSDL2 -lSDL2_image -lSDL2_ttf
 
 # Default rule
 all: $(BUILD_DIR) $(TARGET)

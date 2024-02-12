@@ -49,6 +49,7 @@ struct GameState {
 	int completedTargets;
 	int playing;
 	int options;
+    int fullscreen;
 };
 
 enum GameMode getMode(int argc, char *argv[]);

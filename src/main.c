@@ -15,10 +15,9 @@ int main(int argc, char *argv[]) {
     EventHandlingFunction handleEvent;
 	enum GameMode mode = getMode(argc, argv);
     struct GameState game;
-	char levelPath[] = "maps/level1.txt";
+	char levelPath[] = "maps/clasic.txt";
 
 	initializeGame(&game, levelPath);
-	//initializePlayer();
 
 	if (mode == CONSOLE_MODE) {
         handleEvent = handleEventsConsole;

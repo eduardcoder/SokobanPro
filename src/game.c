@@ -31,6 +31,7 @@ void initializeGame(struct GameState* gameState, char* file_path){
 	gameState->mapPath = file_path;
 	gameState->options = 0;
 	gameState->playing = 1;
+    gameState->fullscreen = 0;
 
 	CHECK_NULL(gameState->levelGrid = calloc(gameState->rows, sizeof(enum CellContent*)));
 	for (int i = 0; i < gameState->rows; i++) {

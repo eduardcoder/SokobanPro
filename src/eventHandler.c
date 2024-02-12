@@ -1,9 +1,6 @@
 #include "../include/eventHandler.h"
 #include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keyboard.h>
-#include <SDL2/SDL_scancode.h>
-#include <SDL2/SDL_timer.h>
-#include <stdio.h>
+#include <SDL2/SDL_video.h>
 
 static const Uint8 *keyState;
 static Uint32 startTime = 0;
@@ -12,66 +9,102 @@ static Uint32 currentTime;
 void handleEventsSDL2(struct GameState *gameState) {
     
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {  
-        if (event.type == SDL_QUIT) {
-			gameState->playing = 0;
-        }
-    }
     keyState = SDL_GetKeyboardState(NULL);
-    if (!graphicsContext.player.isMoving) {
-        if (keyState[SDL_SCANCODE_UP]) {
-            graphicsContext.player.isMoving = 1;
-            startTime = SDL_GetTicks();
-            graphicsContext.player.direction = UP;
-            graphicsContext.player.frameClip = 0;
-        }else if (keyState[SDL_SCANCODE_DOWN]) {
-            graphicsContext.player.isMoving = 1;
-            startTime = SDL_GetTicks();
-            graphicsContext.player.direction = DOWN;
-            graphicsContext.player.frameClip = 0;
-        }else if (keyState[SDL_SCANCODE_LEFT]) {
-            graphicsContext.player.isMoving = 1;
-            startTime = SDL_GetTicks();
-            graphicsContext.player.direction = LEFT;
-            graphicsContext.player.frameClip = 0;
-        }else if (keyState[SDL_SCANCODE_RIGHT]) {
-            graphicsContext.player.isMoving = 1;
-            startTime = SDL_GetTicks();
-            graphicsContext.player.direction = RIGHT;
-            graphicsContext.player.frameClip = 0;
-        }
-    }
 
-    if (graphicsContext.player.isMoving && ((SDL_GetTicks() - startTime) >= MOVE_INTERVAL)) {
-        movePlayer(gameState, graphicsContext.player.direction);
-        startTime = currentTime;
-        if (keyState[SDL_SCANCODE_UP]) {
-            graphicsContext.player.isMoving = 1;
-            startTime = SDL_GetTicks();
-            graphicsContext.player.direction = UP;
-            graphicsContext.player.frameClip = 0;
-        }else if (keyState[SDL_SCANCODE_DOWN]) {
-            graphicsContext.player.isMoving = 1;
-            startTime = SDL_GetTicks();
-            graphicsContext.player.direction = DOWN;
-            graphicsContext.player.frameClip = 0;
-        }else if (keyState[SDL_SCANCODE_LEFT]) {
-            graphicsContext.player.isMoving = 1;
-            startTime = SDL_GetTicks();
-            graphicsContext.player.direction = LEFT;
-            graphicsContext.player.frameClip = 0;
-        }else if (keyState[SDL_SCANCODE_RIGHT]) {
-            graphicsContext.player.isMoving = 1;
-            startTime = SDL_GetTicks();
-            graphicsContext.player.direction = RIGHT;
-            graphicsContext.player.frameClip = 0;
-        }else {
-            graphicsContext.player.isMoving = 0;
-        }
-    }
     if (gameState->completedTargets == gameState->totalTargets) {
-        gameState->playing = 0;
-        printf("VICTORY!\n");
+        while (SDL_PollEvent(&event)) {  
+            if (event.type == SDL_QUIT) {
+                gameState->playing = 0;
+            }
+            if (event.type == SDL_KEYUP) {
+                switch (event.key.keysym.sym) {
+                    case SDLK_q:
+                        gameState->playing = 0;
+                        break;
+                    case SDLK_r:
+                        restartGame(gameState);
+                        break;
+                    case SDLK_f:
+                        gameState->fullscreen = (gameState->fullscreen)? 0 : 1;
+                        break;                        
+                    default:
+                        break;
+                }
+            }
+        }
+    }else {
+        while (SDL_PollEvent(&event)) {  
+            if (event.type == SDL_QUIT) {
+                gameState->playing = 0;
+            }
+            if (event.type == SDL_KEYUP) {
+                switch (event.key.keysym.sym) {
+                    case SDLK_q:
+                        gameState->playing = 0;
+                        break;
+                    case SDLK_r:
+                        restartGame(gameState);
+                        break;
+                    case SDLK_f:
+                        gameState->fullscreen = (gameState->fullscreen)? 0 : 1;
+                        break;  
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (!graphicsContext.player.isMoving) {
+            if (keyState[SDL_SCANCODE_UP]) {
+                graphicsContext.player.isMoving = 1;
+                startTime = SDL_GetTicks();
+                graphicsContext.player.direction = UP;
+                graphicsContext.player.frameClip = 0;
+            }else if (keyState[SDL_SCANCODE_DOWN]) {
+                graphicsContext.player.isMoving = 1;
+                startTime = SDL_GetTicks();
+                graphicsContext.player.direction = DOWN;
+                graphicsContext.player.frameClip = 0;
+            }else if (keyState[SDL_SCANCODE_LEFT]) {
+                graphicsContext.player.isMoving = 1;
+                startTime = SDL_GetTicks();
+                graphicsContext.player.direction = LEFT;
+                graphicsContext.player.frameClip = 0;
+            }else if (keyState[SDL_SCANCODE_RIGHT]) {
+                graphicsContext.player.isMoving = 1;
+                startTime = SDL_GetTicks();
+                graphicsContext.player.direction = RIGHT;
+                graphicsContext.player.frameClip = 0;
+            }
+        }
+
+        if (graphicsContext.player.isMoving && ((SDL_GetTicks() - startTime) >= MOVE_INTERVAL)) {
+            movePlayer(gameState, graphicsContext.player.direction);
+            startTime = currentTime;
+            if (keyState[SDL_SCANCODE_UP]) {
+                graphicsContext.player.isMoving = 1;
+                startTime = SDL_GetTicks();
+                graphicsContext.player.direction = UP;
+                graphicsContext.player.frameClip = 0;
+            }else if (keyState[SDL_SCANCODE_DOWN]) {
+                graphicsContext.player.isMoving = 1;
+                startTime = SDL_GetTicks();
+                graphicsContext.player.direction = DOWN;
+                graphicsContext.player.frameClip = 0;
+            }else if (keyState[SDL_SCANCODE_LEFT]) {
+                graphicsContext.player.isMoving = 1;
+                startTime = SDL_GetTicks();
+                graphicsContext.player.direction = LEFT;
+                graphicsContext.player.frameClip = 0;
+            }else if (keyState[SDL_SCANCODE_RIGHT]) {
+                graphicsContext.player.isMoving = 1;
+                startTime = SDL_GetTicks();
+                graphicsContext.player.direction = RIGHT;
+                graphicsContext.player.frameClip = 0;
+            }else {
+                graphicsContext.player.isMoving = 0;
+            }
+        }
     }
 }
 
