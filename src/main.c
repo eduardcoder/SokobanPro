@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
 
 	initializeGame(&game, levelPath);
 
+    //Initialize GUI
 	if (mode == CONSOLE_MODE) {
         handleEvent = handleEventsConsole;
         handleDisplay = displayConsole;
@@ -28,13 +29,14 @@ int main(int argc, char *argv[]) {
         handleDisplay = displaySDL;
 	    initializeSDL();
 	}
-	//initialize window ncurses
 
+    //Game Loop
 	while(game.playing){
 		handleDisplay(&game);
 		handleEvent(&game);
 	}
 
+    //Finalize GUI
 	if (mode == CONSOLE_MODE) {
 		clear();
 		endwin();

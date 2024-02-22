@@ -2,9 +2,10 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_video.h>
 
-static const Uint8 *keyState;
-static Uint32 startTime = 0;
-static Uint32 currentTime; 
+//static global Variables
+static const Uint8 *keyState;   // Stores the current state of keyboard input using SDL's key state mechanism.
+static Uint32 startTime = 0;    // Stores the start time (in milliseconds) for player movement.
+static Uint32 currentTime;      // Stores the current time (in milliseconds) during event handling.
 
 void handleEventsSDL2(struct GameState *gameState) {
     

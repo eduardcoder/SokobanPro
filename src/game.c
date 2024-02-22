@@ -1,6 +1,6 @@
 #include "../include/game.h"
 
-enum GameMode getMode(int argc, char* argv[]) {
+enum GameMode getMode(int argc, char *argv[]) {
     enum GameMode mode;
 	
     if (argc > 2) {
@@ -17,7 +17,7 @@ enum GameMode getMode(int argc, char* argv[]) {
     return mode;
 }
 
-void initializeGame(struct GameState* gameState, char* file_path){
+void initializeGame(struct GameState *gameState, char *file_path){
 	FILE* file = fopen(file_path, "r");
 	if (!file) {
 		fprintf(stderr, "Error %s not found\n", file_path);
@@ -59,7 +59,7 @@ void initializeGame(struct GameState* gameState, char* file_path){
 	fclose(file);	
 }
 
-void restartGame(struct GameState* gameState) {
+void restartGame(struct GameState *gameState) {
 	FILE* file = fopen(gameState->mapPath, "r");
 	if (!file) {
 		fprintf(stderr, "Error %s not found\n", gameState->mapPath);
@@ -92,7 +92,7 @@ void restartGame(struct GameState* gameState) {
 	fclose(file);	
 }
 
-int verifyTargets(struct GameState* gameState) {
+int verifyTargets(struct GameState *gameState) {
 	if (gameState->totalTargets == gameState->completedTargets){
 		return 1;
 	}else {
@@ -100,7 +100,7 @@ int verifyTargets(struct GameState* gameState) {
 	}
 }
 
-void freeLevel(struct GameState* gameState){
+void freeLevel(struct GameState *gameState){
 	for(int index = 0; index < gameState->rows; index++){
 		free(gameState->levelGrid[index]);
 	}
